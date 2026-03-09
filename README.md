@@ -1,3 +1,3 @@
 # basen1-app
 
-Projekt aplikacji dla szkółki pływackiej.
+Projekt aplikacji dla szkolki plywackiej.
