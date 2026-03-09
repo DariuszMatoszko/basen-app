@@ -22,6 +22,8 @@ export type ChildRecord = {
   id: string;
   number: string;
   firstName: string;
+  lastName: string;
+  fullName: string;
   groupId: string;
   groupName: string;
   age: number;
@@ -55,11 +57,28 @@ export type TakeoverLog = {
   atISO: string;
 };
 
+export type PlanItem = {
+  nr: number;
+  topic: string;
+  recommendations: string;
+};
+
+export type ParentMessage = {
+  id: string;
+  childId: string;
+  author: "RODZIC" | "INSTRUKTOR";
+  text: string;
+  createdAtISO: string;
+  unreadForInstructor: boolean;
+};
+
 export type AppState = {
   children: ChildRecord[];
   freeSlots: FreeSlot[];
   takeovers: TakeoverLog[];
   hiddenFreeSlotsByParent: Record<string, string[]>;
+  groupPlans: Record<string, PlanItem[]>;
+  parentMessages: ParentMessage[];
   updatedAtISO: string;
 };
 

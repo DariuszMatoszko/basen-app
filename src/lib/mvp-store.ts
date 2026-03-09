@@ -3,8 +3,8 @@
 import { buildInitialState } from "./mvp-test-data";
 import { ActionResult, AppState, ChildRecord, FreeSlot, Lesson } from "./mvp-types";
 
-const STORAGE_KEY = "basen1-mvp-store-v1";
-const CHANNEL_NAME = "basen1-mvp-sync-v1";
+const STORAGE_KEY = "basen1-mvp-store-v2";
+const CHANNEL_NAME = "basen1-mvp-sync-v2";
 const SOURCE_ID = `tab-${Math.random().toString(36).slice(2)}`;
 
 let inMemoryState: AppState | null = null;
@@ -100,7 +100,7 @@ function createFreeSlot(fromChild: ChildRecord, lesson: Lesson): FreeSlot {
     id: `slot-${crypto.randomUUID()}`,
     sourceLessonId: lesson.id,
     sourceChildId: fromChild.id,
-    sourceChildName: fromChild.firstName,
+    sourceChildName: fromChild.fullName,
     groupName: fromChild.groupName,
     dateISO: lesson.dateISO,
     day: lesson.day,
@@ -156,8 +156,7 @@ export function dismissFreeSlot(parentId: string, freeSlotId: string): ActionRes
 }
 
 function openReplacementSlot(draft: AppState, child: ChildRecord, lesson: Lesson): void {
-  const replacementFreeSlot = createFreeSlot(child, lesson);
-  draft.freeSlots.unshift(replacementFreeSlot);
+  draft.freeSlots.unshift(createFreeSlot(child, lesson));
 }
 
 export function takeFreeSlot(childId: string, freeSlotId: string): ActionResult {
@@ -208,7 +207,7 @@ export function takeFreeSlot(childId: string, freeSlotId: string): ActionResult 
 
     freeSlot.status = "TAKEN";
     freeSlot.takenByChildId = child.id;
-    freeSlot.takenByChildName = child.firstName;
+    freeSlot.takenByChildName = child.fullName;
     freeSlot.takenAtISO = nowISO();
 
     openReplacementSlot(draft, child, oldLessonSnapshot);
@@ -219,7 +218,7 @@ export function takeFreeSlot(childId: string, freeSlotId: string): ActionResult 
       fromChildId: freeSlot.sourceChildId,
       fromChildName: freeSlot.sourceChildName,
       toChildId: child.id,
-      toChildName: child.firstName,
+      toChildName: child.fullName,
       atISO: nowISO(),
     });
 

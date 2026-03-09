@@ -1,4 +1,4 @@
-import { AppState, ChildRecord, GroupConfig, Lesson } from "./mvp-types";
+import { AppState, ChildRecord, GroupConfig, Lesson, ParentMessage, PlanItem } from "./mvp-types";
 
 const BASE_DATE = "2026-03-16";
 
@@ -85,7 +85,7 @@ const GROUPS: GroupConfig[] = [
   },
 ];
 
-const NAMES = [
+const FIRST_NAMES = [
   "Ala",
   "Bartek",
   "Celina",
@@ -106,6 +106,45 @@ const NAMES = [
   "Szymon",
   "Ula",
   "Wiktor",
+];
+
+const LAST_NAMES = [
+  "Kowalski",
+  "Nowak",
+  "Wisniewski",
+  "Wojcik",
+  "Kaczmarek",
+  "Mazur",
+  "Krupa",
+  "Pawlak",
+  "Michalski",
+  "Kaminski",
+];
+
+const TOPICS = [
+  "Oswojenie z woda i oddech",
+  "Praca nog na desce",
+  "Rownowaga i pozycja ciala",
+  "Skok do wody i bezpieczne wejscie",
+  "Praca rak w kraulu",
+  "Laczenie ruchu rak i nog",
+  "Nawrot przy scianie",
+  "Technika grzbietowa",
+  "Start z murka",
+  "Rytm oddechu w kraulu",
+  "Elementy stylu klasycznego",
+  "Doskonalenie grzbietu",
+  "Szybkosc na odcinku 25 m",
+  "Wytrzymalosc i tempo",
+  "Test koncowy i podsumowanie",
+];
+
+const RECOMMENDATIONS = [
+  "Przypomniec okularki i recznik.",
+  "Przyjsc 10 minut wczesniej na rozgrzewke.",
+  "Powtorzyc oddychanie bokiem po zajeciach.",
+  "Zabrac klapki i czepek.",
+  "Po treningu wypic wode i rozciagnac barki.",
 ];
 
 function formatDateISO(date: Date): string {
@@ -153,12 +192,15 @@ function buildChildren(): ChildRecord[] {
     for (let i = 0; i < 15; i += 1) {
       const id = `child-${String(counter).padStart(3, "0")}`;
       const slot = group.slots[i % group.slots.length];
-      const firstName = `${NAMES[counter % NAMES.length]} ${counter}`;
+      const firstName = FIRST_NAMES[counter % FIRST_NAMES.length];
+      const lastName = LAST_NAMES[counter % LAST_NAMES.length];
 
       children.push({
         id,
         number: `D-${String(counter).padStart(3, "0")}`,
         firstName,
+        lastName,
+        fullName: `${firstName} ${lastName}`,
         groupId: group.id,
         groupName: group.name,
         age: group.age,
@@ -173,12 +215,64 @@ function buildChildren(): ChildRecord[] {
   return children;
 }
 
+function buildGroupPlans(): Record<string, PlanItem[]> {
+  const plans: Record<string, PlanItem[]> = {};
+
+  GROUPS.forEach((group, groupIndex) => {
+    plans[group.id] = Array.from({ length: 15 }, (_, index) => ({
+      nr: index + 1,
+      topic: TOPICS[(index + groupIndex) % TOPICS.length],
+      recommendations: RECOMMENDATIONS[(index + groupIndex) % RECOMMENDATIONS.length],
+    }));
+  });
+
+  return plans;
+}
+
+function buildMessages(children: ChildRecord[]): ParentMessage[] {
+  const messages: ParentMessage[] = [];
+
+  children.slice(0, 24).forEach((child, index) => {
+    const created = addDays(new Date(BASE_DATE), index % 10).toISOString();
+
+    messages.push({
+      id: `msg-parent-${child.id}`,
+      childId: child.id,
+      author: "RODZIC",
+      text:
+        index % 2 === 0
+          ? "Dziecko ma lekki katar. Dam znac rano, czy bedzie na zajeciach."
+          : "Czy mozna zrobic krotka serie oddechowa po zajeciach?",
+      createdAtISO: created,
+      unreadForInstructor: index % 3 === 0,
+    });
+
+    messages.push({
+      id: `msg-instr-${child.id}`,
+      childId: child.id,
+      author: "INSTRUKTOR",
+      text:
+        index % 2 === 0
+          ? "Dziekuje za informacje. Prosze obserwowac samopoczucie i dac znac przed treningiem."
+          : "Tak, dodamy dodatkowe cwiczenie oddechowe po glownej czesci.",
+      createdAtISO: addDays(new Date(created), 1).toISOString(),
+      unreadForInstructor: false,
+    });
+  });
+
+  return messages;
+}
+
 export function buildInitialState(): AppState {
+  const children = buildChildren();
+
   return {
-    children: buildChildren(),
+    children,
     freeSlots: [],
     takeovers: [],
     hiddenFreeSlotsByParent: {},
+    groupPlans: buildGroupPlans(),
+    parentMessages: buildMessages(children),
     updatedAtISO: new Date().toISOString(),
   };
 }

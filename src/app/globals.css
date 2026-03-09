@@ -1,13 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #f7f8fa;
+  --card: #ffffff;
+  --border: #e6e8ec;
+  --text: #1f2937;
+  --primary-green: #22c55e;
+  --danger-red: #ef4444;
+  --soft-gray: #9ca3af;
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-foreground: var(--text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -19,6 +24,51 @@
 body {
   margin: 0;
   background: var(--background);
-  color: var(--foreground);
+  color: var(--text);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+.island-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.accept-button,
+.cancel-button {
+  height: 34px;
+  width: 34px;
+  border: none;
+  border-radius: 9999px;
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.accept-button {
+  background: var(--primary-green);
+}
+
+.cancel-button {
+  background: var(--danger-red);
+}
+
+.accept-button:disabled,
+.cancel-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.ghost-button {
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background: #f3f4f6;
+  color: var(--text);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
 }
